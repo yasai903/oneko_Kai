@@ -223,7 +223,8 @@ async function jdCrazyJoy() {
             await mergeJoy(joyLst[level][i - 1], joyLst[level][i])
             await $.wait(3000)
             merged = true;
-            joyLst[level + 1].push(joyLst[level][i])
+            if (joyLst[level + 1]) joyLst[level + 1].push(joyLst[level][i]);
+            else joyLst[level + 1] = [joyLst[level][i]]
         }
     }
     if (merged) return 
