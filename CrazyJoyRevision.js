@@ -141,10 +141,11 @@ if ($.isNode()) {
     return;
   }
   let count = 0
+    $.coin = 0;
 
   if (cookiesArr.length && $.isNode()) {
     console.log(`\n挂机开始，自动8s收一次金币`);
-    console.log(`Version 0.0.3\n\n`);
+    console.log(`Version 0.0.4\n\n`);
     //兼容iOS
     setInterval(async () => {
       const promiseArr = cookiesArr.map(ck => getCoinForInterval(ck));
@@ -183,7 +184,6 @@ if ($.isNode()) {
 
 async function jdCrazyJoy() {
     const INF = 100000000000000000;
-    $.coin = 0
     $.bean = 0
 
     await getJoyList()
@@ -236,6 +236,7 @@ async function jdCrazyJoy() {
         while ($.coin > $.joyPrices[29]['coins'] && vacant > 2) {
             await buyJoy(30)
             await $.wait(3000)
+            --vacant
         }
         return 
     }
