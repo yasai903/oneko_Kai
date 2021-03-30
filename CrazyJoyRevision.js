@@ -227,15 +227,17 @@ async function jdCrazyJoy() {
     }
     if (merged) return 
 
-    if (vacant == 0) {
-        $.log(`2 of Lv.34 joys are merged.\n`)
-        await mergeJoy(joyLst[34][0], joyLst[34][1])
-        await $.wait(3000)
-        vacant += 2;
-        j34 -= 2;
+    if (j34 > 6) {
+        if (vacant == 0) {
+            $.log(`2 of Lv.34 joys are merged.\n`)
+                await mergeJoy(joyLst[34][0], joyLst[34][1])
+                await $.wait(3000)
+                vacant += 2;
+            j34 -= 2;
+        }
+        else vacant += 2;
     }
-    else if (j34 > 6) vacant += 2;
-    
+
     let cost = [[], [INF]]
     for (let i = 1; i <= vacant; ++i)
         cost[1].push($.joyPrices[0]['coins']);
