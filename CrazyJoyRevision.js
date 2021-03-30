@@ -269,6 +269,10 @@ async function jdCrazyJoy() {
     }
     await buyJoy(minAdd)
     await $.wait(1000)
+    if (minAdd == 1) {
+        await buyJoy(minAdd)
+        await $.wait(1000)
+    }
 
     await getUserBean()
     await $.wait(5000)
