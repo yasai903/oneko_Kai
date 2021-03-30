@@ -216,8 +216,8 @@ async function jdCrazyJoy() {
     })
 
     let merged = false
-    for (let level in joyLst) {
-        if (level == 34 || level == 0) continue
+    for (let level = 1; level < 34; ++level) {
+        if (!joyLst[level]) continue
         for (let i = 1; i < joyLst[level].length; i += 2) {
             $.log(`2 of Lv.${level} joys are merged.\n`)
             await mergeJoy(joyLst[level][i - 1], joyLst[level][i])
