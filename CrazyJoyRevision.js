@@ -242,7 +242,7 @@ async function jdCrazyJoy() {
     }
     if (merged) return 
 
-    if (j34 > 6) {
+    if (j34 > 7) {
         if (vacant == 0) {
             $.log(`2 of Lv.34 joys are merged.\n`)
                 await mergeJoy(joyLst[34][0], joyLst[34][1])
