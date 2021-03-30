@@ -198,7 +198,7 @@ async function jdCrazyJoy() {
         $.log(`${$.joyIds[4]} ${$.joyIds[5]} ${$.joyIds[6]} ${$.joyIds[7]}`)
         $.log(`${$.joyIds[8]} ${$.joyIds[9]} ${$.joyIds[10]} ${$.joyIds[11]}\n`)
     }
-    
+
     let vacant = 0
     let j34 = 0
     let minLevel = 35
@@ -212,6 +212,12 @@ async function jdCrazyJoy() {
             else joyLst[level] = [idx]
         }
     })
+    if ($.coin > $.joyPrices[29]['coins'] && vacant > 2) {
+        while ($.coin > $.joyPrices[29]['coins'] && vacant > 2) {
+            await buyJoy(30)
+        }
+        return 
+    }
 
     let merged = false
     for (let level = 1; level < 34; ++level) {
