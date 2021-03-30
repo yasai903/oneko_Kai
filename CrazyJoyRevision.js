@@ -136,7 +136,6 @@ if ($.isNode()) {
   $.md5 = A
 }(this);
 !(async () => {
-    console.log(`Version 0.0.0\n\n`);
   if (!cookiesArr[0]) {
     $.msg($.name, '【提示】请先获取京东账号一cookie\n直接使用NobyDa的京东签到获取', 'https://bean.m.jd.com/bean/signIndex.action', {"open-url": "https://bean.m.jd.com/bean/signIndex.action"});
     return;
@@ -145,6 +144,7 @@ if ($.isNode()) {
 
   if (cookiesArr.length && $.isNode()) {
     console.log(`\n挂机开始，自动8s收一次金币`);
+    console.log(`Version 0.0.0\n\n`);
     //兼容iOS
     setInterval(async () => {
       const promiseArr = cookiesArr.map(ck => getCoinForInterval(ck));
