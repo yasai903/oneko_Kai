@@ -590,7 +590,7 @@ function buyJoy(joyId) {
               $.canBuy = false
               return
             }
-            $.log(`购买${joyId}级joy成功，剩余金币【${data.data.totalCoins}】`)
+            $.log(`购买${joyId}级joy成功，花费${$.joyPrices[joyId - 1]['coins']}，剩余金币【${data.data.totalCoins}】`)
             $.coin = data.data.totalCoins
           } else {
             console.log(data.message)
