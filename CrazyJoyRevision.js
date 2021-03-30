@@ -191,8 +191,6 @@ async function jdCrazyJoy() {
     await $.wait(1000)
     await hourBenefit()
     await $.wait(1000)
-    await getCoin()
-    await $.wait(1000)
 
     if ($.joyIds && $.joyIds.length > 0) {
         $.log('当前JOY分布情况')
@@ -225,7 +223,12 @@ async function jdCrazyJoy() {
             merged = true;
             if (joyLst[level + 1]) joyLst[level + 1].push(joyLst[level][i]);
             else joyLst[level + 1] = [joyLst[level][i]]
+            ++vacant;
         }
+    }
+    if (vacant > 1) {
+        await getCoin()
+        await $.wait(1000)
     }
     if (merged) return 
 
