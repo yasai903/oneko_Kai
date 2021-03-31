@@ -185,6 +185,7 @@ if ($.isNode()) {
 async function jdCrazyJoy() {
     const INF = 100000000000000000;
     $.bean = 0
+    $.box = false
 
     await getJoyList()
     await $.wait(1000)
@@ -232,6 +233,7 @@ async function jdCrazyJoy() {
         await getCoin()
         await $.wait(1000)
     }
+    if ($.box) return
     $.log(`${$.coin} ? ${$.joyPrices[29]['coins']} ${vacant}\n`)
     if ($.coin > $.joyPrices[29]['coins'] && vacant > 2) {
         while ($.coin > $.joyPrices[29]['coins'] && vacant > 2) {
@@ -783,6 +785,7 @@ function openBox(eventType = 'LUCKY_BOX_DROP', boxId) {
               if (data.data.advertViewTimes > 0) {
                 await $.wait(32000)
                 await rewardBox(eventType, boxId);
+                $.box = true
               }
             }
           }
