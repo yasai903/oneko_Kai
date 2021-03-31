@@ -145,7 +145,7 @@ if ($.isNode()) {
 
   if (cookiesArr.length && $.isNode()) {
     console.log(`\n挂机开始，自动8s收一次金币`);
-    console.log(`Version 0.0.4\n\n`);
+    console.log(`Version 0.0.6\n\n`);
     //兼容iOS
     setInterval(async () => {
       const promiseArr = cookiesArr.map(ck => getCoinForInterval(ck));
@@ -199,6 +199,7 @@ async function jdCrazyJoy() {
         $.log(`${$.joyIds[4]} ${$.joyIds[5]} ${$.joyIds[6]} ${$.joyIds[7]}`)
         $.log(`${$.joyIds[8]} ${$.joyIds[9]} ${$.joyIds[10]} ${$.joyIds[11]}\n`)
     }
+    else return
 
     let vacant = 0
     let j34 = 0
