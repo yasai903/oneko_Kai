@@ -145,7 +145,7 @@ if ($.isNode()) {
 
   if (cookiesArr.length && $.isNode()) {
     console.log(`\n挂机开始，自动8s收一次金币`);
-    console.log(`Version 0.0.6\n\n`);
+    console.log(`Version 0.0.7\n\n`);
     //兼容iOS
     setInterval(async () => {
       const promiseArr = cookiesArr.map(ck => getCoinForInterval(ck));
@@ -208,12 +208,10 @@ async function jdCrazyJoy() {
     let joyLst = {}
     $.joyIds.map((level, idx) => {
         if (level == 0) ++vacant;
-        else {
-            minLevel = Math.min(minLevel, level);
-            if (level == 34) ++j34;
-            if (joyLst[level]) joyLst[level].push(idx);
-            else joyLst[level] = [idx]
-        }
+        else minLevel = Math.min(minLevel, level);
+        if (level == 34) ++j34;
+        if (joyLst[level]) joyLst[level].push(idx);
+        else joyLst[level] = [idx]
     })
 
     let merged = false
@@ -245,15 +243,12 @@ async function jdCrazyJoy() {
     }
     if (merged) return 
 
-    if (j34 > 7) {
-        if (vacant == 0) {
-            $.log(`2 of Lv.34 joys are merged.\n`)
-                await mergeJoy(joyLst[34][0], joyLst[34][1])
-                await $.wait(3000)
-                vacant += 2;
-            j34 -= 2;
-        }
-        else vacant += 2;
+    if (j34 > 7 && vacant == 0) {
+        $.log(`2 of Lv.34 joys are merged.\n`)
+        await mergeJoy(joyLst[34][0], joyLst[34][1])
+        await $.wait(3000)
+        j34 -= 2;
+        vacant+= 2;
     }
 
     let cost = [[], [INF]]
@@ -265,7 +260,6 @@ async function jdCrazyJoy() {
             cost[i].push(INF)
             cost[i][j] = Math.min(cost[i][j], cost[i - 1][j] + cost[i - 1][j - 1], cost[i][j - 1]);
             if (i <= $.buyJoyLevel) cost[i][j] = Math.min(cost[i][j], $.joyPrices[i - 1]['coins']);
-            //$.log(`${i}, ${j} costs ${cost[i][j]}.\n`)
         }
     }
 
@@ -275,7 +269,6 @@ async function jdCrazyJoy() {
     for (let h = 0; h < que.length; ++h) {
         const u = que[h][0];
         let v = que[h][1];
-        //$.log(`Target to ${u}, ${v} with costs ${cost[u][v]}(${cost[u][v - 1]}).\n`)
         while (cost[u][v] == cost[u][v - 1]) --v;
         if (u <= $.buyJoyLevel && cost[u][v] == $.joyPrices[u - 1]['coins']) minAdd = Math.min(minAdd, u);
         else {
@@ -285,7 +278,11 @@ async function jdCrazyJoy() {
     }
     await buyJoy(minAdd)
     await $.wait(1000)
-    if (minAdd == 1) {
+    if (vacant == 1) {
+        await mergeJoy(joyLst[0][0], joyLst[minAdd][0])
+        await $.wait(3000)
+    }
+    else if (minAdd == 1) {
         await buyJoy(minAdd)
         await $.wait(1000)
     }
@@ -293,191 +290,6 @@ async function jdCrazyJoy() {
     await getUserBean()
     await $.wait(5000)
     console.log(`当前信息：${$.bean} 京豆，${$.coin} 金币`)
-}
-/*
-async function jdCrazyJoy() {
-  $.coin = 0
-  $.bean = 0
-
-  $.canBuy = true
-  await getJoyList()
-  await $.wait(1000)
-  if ($.joyIds && $.joyIds.length > 0) {
-    $.log('当前JOY分布情况')
-    $.log(`\n${$.joyIds[0]} ${$.joyIds[1]} ${$.joyIds[2]} ${$.joyIds[3]}`)
-    $.log(`${$.joyIds[4]} ${$.joyIds[5]} ${$.joyIds[6]} ${$.joyIds[7]}`)
-    $.log(`${$.joyIds[8]} ${$.joyIds[9]} ${$.joyIds[10]} ${$.joyIds[11]}\n`)
-  }
-
-  await getJoyShop()
-  await $.wait(1000)
-
-  // 如果格子全部被占有且没有可以合并的JOY，只能回收低级的JOY (且最低等级的JOY小于30级)
-  if(checkHasFullOccupied() && !checkCanMerge() && finMinJoyLevel() < 30) {
-    const minJoyId = Math.min(...$.joyIds);
-    const boxId = $.joyIds.indexOf(minJoyId);
-    console.log(`格子全部被占有且没有可以合并的JOY，回收${boxId + 1}号位等级为${minJoyId}的JOY`)
-    await sellJoy(minJoyId, boxId);
-    await $.wait(1000)
-    await getJoyList();
-    await $.wait(1000)
-  }
-
-  await hourBenefit()
-  await $.wait(1000)
-  await getCoin()
-  await $.wait(1000)
-
-  for (let i = 0; i < $.joyIds.length; ++i) {
-    if (!$.canBuy) {
-      $.log(`金币不足，跳过购买`)
-      break
-    }
-    if ($.joyIds[i] === 0) {
-      await buyJoy($.buyJoyLevel)
-      await $.wait(1000)
-      await getJoyList()
-      await $.wait(1000)
-      await getCoin();
-    }
-  }
-
-  let obj = {};
-  $.joyIds.map((vo, idx) => {
-    if (vo !== 0) {
-      if (obj[vo]) {
-        obj[vo].push(idx)
-      } else {
-        obj[vo] = [idx]
-      }
-    }
-  })
-  for (let idx in obj) {
-    const vo = obj[idx]
-    if (idx < 34 && vo.length >= 2) {
-      $.log(`开始合并两只${idx}级joy\n`)
-      await mergeJoy(vo[0], vo[1])
-      await $.wait(3000)
-      await getJoyList()
-      await $.wait(1000)
-      if ($.joyIds && $.joyIds.length > 0) {
-        $.log('合并后的JOY分布情况')
-        $.log(`\n${$.joyIds[0]} ${$.joyIds[1]} ${$.joyIds[2]} ${$.joyIds[3]}`)
-        $.log(`${$.joyIds[4]} ${$.joyIds[5]} ${$.joyIds[6]} ${$.joyIds[7]}`)
-        $.log(`${$.joyIds[8]} ${$.joyIds[9]} ${$.joyIds[10]} ${$.joyIds[11]}\n`)
-      }
-    }
-    if (idx === '34' && vo.length >= 8) {
-      if ($.coin >= 6000000000000000) {
-        //当存在8个34级JOY，并且剩余金币可为后面继续合成两只新的34级JOY(按全部用30级JOY合成一只34级JOY计算需:1.66T * 2 * 2 * 2 * 2 = 26.56T = 2.6Q)时,则此条件下合并两个34级JOY
-        $.log(`开始合并两只${idx}级joy\n`)
-        await mergeJoy(vo[0], vo[1])
-        await $.wait(3000)
-        await getJoyList()
-        await $.wait(1000)
-        if ($.joyIds && $.joyIds.length > 0) {
-          $.log('合并后的JOY分布情况')
-          $.log(`\n${$.joyIds[0]} ${$.joyIds[1]} ${$.joyIds[2]} ${$.joyIds[3]}`)
-          $.log(`${$.joyIds[4]} ${$.joyIds[5]} ${$.joyIds[6]} ${$.joyIds[7]}`)
-          $.log(`${$.joyIds[8]} ${$.joyIds[9]} ${$.joyIds[10]} ${$.joyIds[11]}\n`)
-        }
-      }
-    }
-  }
-  await getUserBean()
-  await $.wait(5000)
-  console.log(`当前信息：${$.bean} 京豆，${$.coin} 金币`)
-}
-*/
-
-//查询格子里面是否还有空格
-function checkHasFullOccupied() {
-  return !$.joyIds.includes(0);
-}
-
-// 查询是否有34级JOY
-function checkHas34Level() {
-  return $.joyIds.includes(34);
-}
-
-//查找格子里面有几个空格
-function findZeroNum() {
-  return $.joyIds.filter(i => i === 0).length
-}
-//查找当前 购买 joyLists 中最低等级的那一个
-function finMinJoyLevel() {
-  return Math.min(...$.joyIds.filter(s => s))
-}
-/**
- * 来源：https://elecv2.ml/#算法研究之合并类小游戏的最优购买问题
- * 获取下一个合适的购买等级。（算法二优化版）
- * @param     {array}     joyPrices    商店 joy 价格和等级列表
- * @param     {number}    start        开始比较的等级。范围1~30，默认：30
- * @param     {number}    direction    向上比较还是向下比较。0：向下比较，1：向上比较，默认：0
- * @return    {number}                 返回最终适合购买的等级
- */
-function getBuyid2b(joyPrices, start = 30, direction = 0) {
-  if (start < 1 || start > 30) {
-    console.log('start 等级输入不合法')
-    return 1
-  }
-  let maxL = 30        // 设置最高购买等级
-  if (direction) {
-    // 向上比较
-    for (let ind = start - 1; ind < maxL - 1; ind++) {       // 商店 joy 等级和序列号相差1，需要减一下
-      if (joyPrices[ind].coins * 2 < joyPrices[ind + 1].coins) return joyPrices[ind].joyId
-    }
-    return maxL
-  } else {
-    // 向下比较
-    for (let ind = start - 1; ind > 0; ind--) {
-      if (joyPrices[ind].coins <= joyPrices[ind - 1].coins * 2) return joyPrices[ind].joyId
-    }
-    return 1
-  }
-}
-
-function buyJoyLogic() {
-  new Promise(async resolve => {
-    let zeroNum = findZeroNum();
-    if (zeroNum === 0) {
-      console.log('格子满了')
-    } else if (zeroNum === 1) {
-      await buyJoy(finMinJoyLevel());
-    } else {
-      let buyLevel = 1, joyPrices
-      console.log('joyPrices', JSON.stringify($.joyPrices))
-      if (zeroNum > 2) joyPrices = $.joyPrices;
-      while (zeroNum--) {
-        await $.wait(1000)
-        if (zeroNum >= 2 && joyPrices && joyPrices.length) {
-          // buyLevel = getBuyid2b(joyPrices, joyPrices.length)     // 具体参数可根据个人情况进行调整
-          buyLevel = getBuyid2b(joyPrices)     // 具体参数可根据个人情况进行调整
-        }
-        if ($.joyPrices) {
-          //添加判断。避免在获取$.joyPrices失败时，直接买等级1
-          await buyJoy(buyLevel)
-        }
-      }
-    }
-    resolve()
-  })
-}
-
-function checkCanMerge() {
-  let obj = {};
-  let canMerge = false;
-  $.joyIds.forEach((vo, idx) => {
-    if (vo !== 0 && vo !== 34) {
-      if (obj[vo]) {
-        obj[vo].push(idx)
-        canMerge = true;
-      } else {
-        obj[vo] = [idx]
-      }
-    }
-  });
-  return canMerge;
 }
 
 function getJoyList() {
@@ -529,7 +341,6 @@ function getJoyShop() {
               $.cost = shop.length ? shop[shop.length - 1]['coins'] : Infinity
             }
             
-           //   $.log(`当前可购买的最高JOY等级为${$.buyJoyLevel}级.\n`)
           }
         }
       } catch (e) {
@@ -621,38 +432,6 @@ function buyJoy(joyId) {
   })
 }
 
-// 出售（回收）joy
-function sellJoy(joyId, boxId) {
-  const body = {"action": "SELL", "joyId": joyId, "boxId": boxId}
-  return new Promise((resolve) => {
-    $.get(taskUrl('crazyJoy_joy_trade', JSON.stringify(body)), async (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          data = JSON.parse(data);
-          if (data.success) {
-            if (data.data.eventInfo) {
-              await openBox(data.data.eventInfo.eventType, data.data.eventInfo.eventRecordId)
-              await $.wait(1000)
-              $.canBuy = false
-              return
-            }
-            $.log(`回收${joyId}级joy成功，剩余金币【${data.data.totalCoins}】`)
-            $.coin = data.data.totalCoins
-          } else {
-            console.log(data.message)
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp);
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
 
 function hourBenefit() {
   let body = {"eventType": "HOUR_BENEFIT"}
